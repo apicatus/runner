@@ -20,5 +20,10 @@
   "bugs": {
     "url": "https://github.com/apicatus/runner/issues"
   },
-  "homepage": "https://github.com/apicatus/runner"
+  "homepage": "https://github.com/apicatus/runner",
+  "dependencies": {
+    "express": "^4.10.2",
+    "body-parser": "^1.9.2",
+    "jade": "^1.7.0"
+  }
 }
