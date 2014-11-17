@@ -1,0 +1,24 @@
+{
+  "name": "runner",
+  "version": "0.0.1",
+  "description": "Api Runner",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/apicatus/runner.git"
+  },
+  "keywords": [
+    "Api",
+    "Test",
+    "Runner"
+  ],
+  "author": "Benjamin Maggi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/apicatus/runner/issues"
+  },
+  "homepage": "https://github.com/apicatus/runner"
+}
