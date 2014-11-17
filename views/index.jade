@@ -1,29 +1,117 @@
 doctype html
-<!doctype html>
-| <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-| <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-| <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-| <!--[if gt IE 8]><!-->
-html(class="no-js")
-|<!--<![endif]-->
-head
-    title
-    meta(charset="utf-8")
-    meta(http-equiv="X-UA-Compatible", content="IE=edge")
-    meta(name="description", content="")
-    meta(name="robots", content="noindex, nofollow")
-    meta(name="viewport" content="width=device-width")
-    link(rel="stylesheet", href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css")
-    script(src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js")
+html(ng-app="Runner", lang="en")
+    head
+        title API Runner
+        meta(charset="utf-8")
+        meta(http-equiv="X-UA-Compatible", content="IE=edge")
+        meta(name="description", content="")
+        meta(name="robots", content="noindex, nofollow")
+        meta(name="viewport" content="width=device-width")
+        link(rel="stylesheet", href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css")
+        link(rel="stylesheet", href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")
+        script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js")
+        script(src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/js/bootstrap.min.js")
+        script(src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js")
+        script(src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0/angular.js")
+        script(src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.11.2/ui-bootstrap-tpls.min.js")
+        script(src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.11.2/ui-bootstrap.min.js")
+        script(src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-utils/0.1.1/angular-ui-utils.min.js")
 
-    script.
-        var _sf_startpt=(new Date()).getTime()
+        script(src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.11/angular-ui-router.min.js")
+        script(src="//cdnjs.cloudflare.com/ajax/libs/restangular/1.4.0/restangular.min.js")
+        style(type="text/css", media="screen, projection").
+            body {
+                margin-top: 50px;
+            }
+        script.
+            var Runner = angular.module('Runner', [
+                'ui.bootstrap',
+                'ui.router',
+                'ui.utils',
+                'restangular'
+            ]);
+            Runner.run(function run($rootScope, $state, Restangular) {
+                $rootScope.user = {
+                    name: 'Eltiro',
+                }
+            });
+            Runner.controller('myAppController', ['$scope', function($scope){
+                console.log("started")
+                this.apis = [{
+                    name: 'Benjamin'
+                }, {
+                    name: 'Anna'
+                }, {
+                    name: 'Steve'
+                }];
+            }]);
 
-
-body
-    nav(role="navigation").navbar.navbar-default
+    body(ng-controller="myAppController as main")
+        nav(role="navigation").navbar.navbar-inverse.navbar-fixed-top
+            div.container-fluid
+                div.navbar-header
+                    a(href="#").navbar-brand
+                        img(alt="Brand", src="http://app.apicat.us/assets/images/logo.svg", width="20", height="20")
+                #bs-example-navbar-collapse-1.collapse.navbar-collapse
+                    ul.nav.navbar-nav
+                        li.dropdown
+                            a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-expanded='false', dropdown)
+                                | APIS
+                                span.fa.fa-fw.fa-angle-down
+                            ul.dropdown-menu(role='menu')
+                                li
+                                    a(href='#') Action
+                                li
+                                    a(href='#') Another action
+                                li
+                                    a(href='#') Something else here
+                                li.divider
+                                li
+                                    a(href='#') Separated link
+                                li.divider
+                                li
+                                    a(href='#') One more separated link
+                        li.dropdown
+                            a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-expanded='false', dropdown)
+                                | Users
+                                span.fa.fa-fw.fa-angle-down
+                            ul.dropdown-menu(role='menu')
+                                li
+                                    a(href='#') Action
+                                li
+                                    a(href='#') Another action
+                                li
+                                    a(href='#') Something else here
+                                li.divider
+                                li
+                                    a(href='#') Separated link
+                                li.divider
+                                li
+                                    a(href='#') One more separated link
+                    ul.nav.navbar-nav.navbar-right
+                        li.dropdown
+                            a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-expanded='false')
+                                | Dropdown
+                                span.fa.fa-fw.fa-angle-down
+                                ul.dropdown-menu(role='menu')
+                                    li
+                                        a(href='#') Action
+                                    li
+                                        a(href='#') Another action
+                                    li
+                                        a(href='#') Something else here
+                                    li.divider
+                                    li
+                                        a(href='#') Separated link
         div.container-fluid
-            div.navbar-header
-                a.navbar-brand
-                    a(href="#").navbar-brand Runner
+            div.row
+                div.col-lg-12
+                    div.page-header
+                        h1
+                        i.fa.fa-fw.fa-home
+                        | Api List
+                    ul.list-group
+                        li(ng-repeat="api in main.apis").list-group-item {{api.name}}
+
+
 

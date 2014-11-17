@@ -38,6 +38,7 @@
 var express = require('express'),
     router = express.Router(),
     bodyParser = require('body-parser'),
+    cookieParser = require('cookie-parser'),
     path = require('path'),
     http = require('http'),
     https = require('https');
@@ -51,14 +52,15 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 app.set('title', 'Runner');
-
-var cookieParser = require('cookie-parser');
+// Body Parser
 app.use(bodyParser.urlencoded({
   extended: true
 }));
 app.use(bodyParser.json());
+// Cookie Parser
+app.use(cookieParser());
+// Static files
 app.use(express.static(path.join(__dirname, 'public')));
-
 
 app.get('/', function(req, res) {
     res.render('index', { title: 'Router' });
