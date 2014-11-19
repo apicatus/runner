@@ -32,6 +32,15 @@ html(ng-app="Runner", lang="en")
             body {
                 margin-top: 50px;
             }
+            [status="4XX"] {
+                color: #F00;
+            }
+            [status="5XX"] {
+                color: #FF0;
+            }
+            [status="2XX"] {
+                color: #0f0;
+            }
         script.
 
             var list = [{
@@ -170,46 +179,31 @@ html(ng-app="Runner", lang="en")
         nav(role="navigation").navbar.navbar-inverse.navbar-fixed-top
             div.container-fluid
                 div.navbar-header
-                    a(href="#").navbar-brand
+                    a(ui-sref="home").navbar-brand
                         img(alt="Brand", src="http://app.apicat.us/assets/images/logo.svg", width="20", height="20")
                 #bs-example-navbar-collapse-1.collapse.navbar-collapse
                     ul.nav.navbar-nav
                         li.dropdown
                             a(href='#', role='button', aria-expanded='false').dropdown-toggle
                                 i.fa.fa-fw.fa-cubes
-                                |&nbsp;APIS
+                                |&nbsp;API Runners
                                 span.fa.fa-fw.fa-angle-down
                             ul.dropdown-menu(role='menu')
+                                li(ui-sref-active="active")
+                                    a(ui-sref="runner")
+                                        i.fa.fa-fw.fa-home
+                                        |&nbsp;Runners
                                 li
-                                    a(href='#') Action
+                                    a(href='#')
+                                        i.fa.fa-fw.fa-exchange
+                                        |&nbsp;Traffic
                                 li
-                                    a(href='#') Another action
-                                li
-                                    a(href='#') Something else here
+                                    a(href='#')
+                                        i.fa.fa-fw.fa-exclamation-triangle
+                                        |&nbsp;Errors
                                 li.divider
                                 li
                                     a(href='#') Separated link
-                                li.divider
-                                li
-                                    a(href='#') One more separated link
-                        li.dropdown
-                            a(href='#', data-toggle='dropdown', role='button', aria-expanded='false', dropdown).dropdown-toggle
-                                i.fa.fa-fw.fa-users
-                                |&nbsp;Users
-                                span.fa.fa-fw.fa-angle-down
-                            ul(role='menu').dropdown-menu
-                                li
-                                    a(href='#') Action
-                                li
-                                    a(href='#') Another action
-                                li
-                                    a(href='#') Something else here
-                                li.divider
-                                li
-                                    a(href='#') Separated link
-                                li.divider
-                                li
-                                    a(href='#') One more separated link
                     ul.nav.navbar-nav.navbar-right
                         li.dropdown
                             a(href='#', data-toggle='dropdown', role='button', aria-expanded='false').dropdown-toggle
@@ -233,8 +227,8 @@ html(ng-app="Runner", lang="en")
             div.col-lg-12
                 div.page-header
                     h4
-                        i.fa.fa-fw.fa-cubes
-                        |&nbsp;{{home.name}}
+                        i.fa.fa-fw.fa-home
+                        |&nbsp;API Runner
     // Runner
     script(type="text/ng-template" id="runner.html")
         div(ui-view="main").container-fluid
@@ -243,7 +237,7 @@ html(ng-app="Runner", lang="en")
                     div.page-header
                         h4
                             i.fa.fa-fw.fa-cubes
-                            |&nbsp;Api List
+                            |&nbsp;Runners
                     div(role="toolbar").btn-toolbar
                         div.btn-group
                             button(type="button", ng-click="addNewTaskPannel = !addNewTaskPannel").btn.btn-default
@@ -284,7 +278,7 @@ html(ng-app="Runner", lang="en")
                                         input(type="number", ng-model="runner.task.port", placeholder="PORT", id="port").form-control
                                 button(type="submit").btn.btn-default Create
                     br
-                    table.table.table-striped.table-hover.table-responsive
+                    table.table.table-responsive
                         thead
                             tr
                                 th
@@ -296,8 +290,8 @@ html(ng-app="Runner", lang="en")
                                 th.text-center Proxied
                                 th.text-right Status
                                 th
-                        tbody
-                            tr(ng-repeat="task in runner.queue")
+                        tbody(ng-repeat="task in runner.queue")
+                            tr
                                 td
                                     input(type="checkbox")
                                 td {{task.hostname}}
@@ -318,12 +312,20 @@ html(ng-app="Runner", lang="en")
                                             span.fa.fa-fw.fa-angle-down
                                         ul.dropdown-menu(role='menu')
                                             li
-                                                a(href='#') Action
+                                                a(href='', ng-click="taskDetails = !taskDetails")
+                                                    i.fa.fa-fw.fa-eye
+                                                    |&nbsp;Details
                                             li
                                                 a(href='#') Another action
                                             li
                                                 a(href='#') Something else here
                                             li.divider
                                             li
-                                                a(href='#') Separated link
+                                                a(href='#')
+                                                    i.fa.fa-fw.fa-trash
+                                                    |&nbsp;Remove
+                            tr(collapse="!taskDetails")
+                                td(colspan="9")
+                                    div.well
+                                        h1 Hello
 
