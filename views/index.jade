@@ -10,32 +10,120 @@ html(ng-app="Runner", lang="en")
         link(rel="stylesheet", href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css")
         link(rel="stylesheet", href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css")
         script(src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js")
-        script(src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/js/bootstrap.min.js")
+        // lodash
         script(src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js")
+        // angular
         script(src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0/angular.js")
+        // ui-bootstrap
         script(src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.11.2/ui-bootstrap-tpls.min.js")
         script(src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-bootstrap/0.11.2/ui-bootstrap.min.js")
+        // ui-utils
         script(src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-utils/0.1.1/angular-ui-utils.min.js")
-
+        // ng-animate
+        script(src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.3.0/angular-animate.min.js")
+        // ui-router
         script(src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.11/angular-ui-router.min.js")
+        // restangular
         script(src="//cdnjs.cloudflare.com/ajax/libs/restangular/1.4.0/restangular.min.js")
+        // async
+        script(src="//cdnjs.cloudflare.com/ajax/libs/async/0.9.0/async.js")
+
         style(type="text/css", media="screen, projection").
             body {
                 margin-top: 50px;
             }
         script.
+
+            var list = [{
+                name: "benjamin",
+                id: 1
+            }, {
+                name: "anna",
+                id: 1
+            }, {
+                name: "Steve",
+                id: 1
+            }, {
+                name: "Julian",
+                id: 1
+            }, {
+                name: "Tomas",
+                id: 1
+            }, {
+                name: "Bill",
+                id: 1
+            }];
+            var processed = list.length;
+            var myQueue = async.forever(
+                function(next) {
+                    // next is suitable for passing to things that need a callback(err [, whatever]);
+                    // it will result in this function being called again.
+
+                    async.mapLimit(list, 1, function(item, callback) {
+                        setTimeout(function(){
+                            item.id += 1;
+                            //console.log("item: ", item)
+                            callback(null, item);
+                        }, 2000)
+                    }, function(error, callback) {
+                        //console.log("err clb", error, callback);
+                        next();
+                    });
+                },
+                function(err) {
+                    // if next is called with a value in its first parameter, it will appear
+                    // in here as 'err', and execution will stop.
+                }
+            );
+        script.
             var Runner = angular.module('Runner', [
                 'ui.bootstrap',
+                'ui.bootstrap.tpls',
                 'ui.router',
                 'ui.utils',
                 'restangular'
             ]);
-            Runner.run(function run($rootScope, $state, Restangular) {
+            Runner.run(['$rootScope', '$state', 'Restangular', function($rootScope, $state, Restangular) {
+
                 $rootScope.user = {
                     name: 'Eltiro',
                 }
-            });
-            Runner.controller('myAppController', ['$scope', function($scope){
+                Restangular.oneUrl('user', 'http://api.apicat.us:8070/user/signin').customPOST({username: 'admin', password: 'admin'}).then(function(response){
+                    console.log(response)
+                });
+
+            }]);
+            Runner.config(['$stateProvider', '$urlRouterProvider', function($stateProvider,   $urlRouterProvider) {
+
+                $urlRouterProvider.otherwise('/');
+                $stateProvider
+                    .state('home', {
+                        url: '/',
+                        views: {
+                            'main': {
+                                templateUrl: 'home.html',
+                                controller: 'myAppController as home'
+                            }
+                        }
+                    })
+                    .state('runner', {
+                        url: '/runner',
+                        views: {
+                            'main': {
+                                templateUrl: 'runner.html',
+                                controller: 'Runner as runner'
+                            }
+                        }
+                    });
+
+            }]);
+            Runner.controller('Runner', ['$scope', function($scope){
+                this.runners = [{
+                    name: 'oxoxoxo'
+                }];
+            }]);
+            Runner.controller('myAppController', ['$scope', function($scope) {
+
                 console.log("started")
                 this.apis = [{
                     name: 'Benjamin'
@@ -44,6 +132,13 @@ html(ng-app="Runner", lang="en")
                 }, {
                     name: 'Steve'
                 }];
+                $scope.animals = {
+                    vertibrates: {
+                    mammals: ['lion', 'dog'],
+                    birds: ['hawk', 'sparrow']},
+                    invertibrates: {'insects': ['bee', 'ant']}
+                };
+                this.name = "Home";
             }]);
 
     body(ng-controller="myAppController as main")
@@ -55,8 +150,9 @@ html(ng-app="Runner", lang="en")
                 #bs-example-navbar-collapse-1.collapse.navbar-collapse
                     ul.nav.navbar-nav
                         li.dropdown
-                            a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-expanded='false', dropdown)
-                                | APIS
+                            a(href='#', role='button', aria-expanded='false').dropdown-toggle
+                                i.fa.fa-fw.fa-cubes
+                                |&nbsp;APIS
                                 span.fa.fa-fw.fa-angle-down
                             ul.dropdown-menu(role='menu')
                                 li
@@ -72,10 +168,11 @@ html(ng-app="Runner", lang="en")
                                 li
                                     a(href='#') One more separated link
                         li.dropdown
-                            a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-expanded='false', dropdown)
-                                | Users
+                            a(href='#', data-toggle='dropdown', role='button', aria-expanded='false', dropdown).dropdown-toggle
+                                i.fa.fa-fw.fa-users
+                                |&nbsp;Users
                                 span.fa.fa-fw.fa-angle-down
-                            ul.dropdown-menu(role='menu')
+                            ul(role='menu').dropdown-menu
                                 li
                                     a(href='#') Action
                                 li
@@ -90,28 +187,153 @@ html(ng-app="Runner", lang="en")
                                     a(href='#') One more separated link
                     ul.nav.navbar-nav.navbar-right
                         li.dropdown
-                            a.dropdown-toggle(href='#', data-toggle='dropdown', role='button', aria-expanded='false')
-                                | Dropdown
+                            a(href='#', data-toggle='dropdown', role='button', aria-expanded='false').dropdown-toggle
+                                | Benjamin@gmail.com
                                 span.fa.fa-fw.fa-angle-down
-                                ul.dropdown-menu(role='menu')
-                                    li
-                                        a(href='#') Action
-                                    li
-                                        a(href='#') Another action
-                                    li
-                                        a(href='#') Something else here
-                                    li.divider
-                                    li
-                                        a(href='#') Separated link
-        div.container-fluid
+                            ul(role='menu').dropdown-menu
+                                li
+                                    a(href='#') Action
+                                li
+                                    a(href='#') Another action
+                                li
+                                    a(href='#') Something else here
+                                li.divider
+                                li
+                                    a(href='#') Separated link
+        div(ui-view="main").container-fluid
             div.row
                 div.col-lg-12
                     div.page-header
-                        h1
-                        i.fa.fa-fw.fa-home
-                        | Api List
-                    ul.list-group
-                        li(ng-repeat="api in main.apis").list-group-item {{api.name}}
+                        h4
+                            i.fa.fa-fw.fa-cubes
+                            |&nbsp;Api List
+                    div(role="toolbar").btn-toolbar
+                        div.btn-group
+                            button(type="button").btn.btn-default
+                                i.fa.fa-file-o
+                            button(type="button").btn.btn-default
+                                i.fa.fa-pencil-square-o
+                            button(type="button").btn.btn-default
+                                i.fa.fa-trash
+                        form(role="form").form-inline.pull-right
+                            div.form-group
+                                div.input-group
+                                    input(type="text").form-control
+                                    span.input-group-btn
+                                        button(type="button").btn.btn-default
+                                            i.fa.fa-fw.fa-search
+                    br
+                    table.table.table-striped.table-hover.table-responsive
+                        thead
+                            tr
+                                th
+                                th Name
+                                th Subdomain
+                                th Created
+                                th.text-right Methods
+                                th Owners
+                                th.text-center Enabled
+                                th.text-center Proxied
+                                th.text-center Status
+                                th
+                        tbody
+                            tr(ng-repeat="api in main.apis")
+                                td
+                                    input(type="checkbox")
+                                td {{api.name}}
+                                td test
+                                td 16/16/2014
+                                td.text-right 32
+                                td Benjamin
+                                td.text-center
+                                    i.fa.fa-check-circle
+                                td.text-center
+                                    i.fa.fa-circle-thin
+                                td.text-center
+                                    i.fa.fa-circle.text-success
+                                td
+                                    div(dropdown="").btn-group.pull-right
+                                        button(type="button").btn.btn-default.btn-xs.dropdown-toggle
+                                            i.fa.fa-fw.fa-bars
+                                            span.fa.fa-fw.fa-angle-down
+                                        ul.dropdown-menu(role='menu')
+                                            li
+                                                a(href='#') Action
+                                            li
+                                                a(href='#') Another action
+                                            li
+                                                a(href='#') Something else here
+                                            li.divider
+                                            li
+                                                a(href='#') Separated link
 
-
+    script(type="text/ng-template" id="home.html")
+        h1 {{home.name}}
+    script(type="text/ng-template" id="runner.html")
+        div(ui-view="main").container-fluid
+            div.row
+                div.col-lg-12
+                    div.page-header
+                        h4
+                            i.fa.fa-fw.fa-cubes
+                            |&nbsp;Api List
+                    div(role="toolbar").btn-toolbar
+                        div.btn-group
+                            button(type="button").btn.btn-default
+                                i.fa.fa-file-o
+                            button(type="button").btn.btn-default
+                                i.fa.fa-pencil-square-o
+                            button(type="button").btn.btn-default
+                                i.fa.fa-trash
+                        form(role="form").form-inline.pull-right
+                            div.form-group
+                                div.input-group
+                                    input(type="text").form-control
+                                    span.input-group-btn
+                                        button(type="button").btn.btn-default
+                                            i.fa.fa-fw.fa-search
+                    br
+                    table.table.table-striped.table-hover.table-responsive
+                        thead
+                            tr
+                                th
+                                th Name
+                                th Subdomain
+                                th Created
+                                th.text-right Methods
+                                th Owners
+                                th.text-center Enabled
+                                th.text-center Proxied
+                                th.text-center Status
+                                th
+                        tbody
+                            tr(ng-repeat="api in main.apis")
+                                td
+                                    input(type="checkbox")
+                                td {{api.name}}
+                                td test
+                                td 16/16/2014
+                                td.text-right 32
+                                td Benjamin
+                                td.text-center
+                                    i.fa.fa-check-circle
+                                td.text-center
+                                    i.fa.fa-circle-thin
+                                td.text-center
+                                    i.fa.fa-circle.text-success
+                                td
+                                    div(dropdown="").btn-group.pull-right
+                                        button(type="button").btn.btn-default.btn-xs.dropdown-toggle
+                                            i.fa.fa-fw.fa-bars
+                                            span.fa.fa-fw.fa-angle-down
+                                        ul.dropdown-menu(role='menu')
+                                            li
+                                                a(href='#') Action
+                                            li
+                                                a(href='#') Another action
+                                            li
+                                                a(href='#') Something else here
+                                            li.divider
+                                            li
+                                                a(href='#') Separated link
 
