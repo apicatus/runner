@@ -55,49 +55,6 @@ var DB = null;
 var index = require('./routes/index');
 var queue = require('./routes/queue');
 
-
-var list = [{
-    name: "benjamin",
-    id: 1
-}, {
-    name: "anna",
-    id: 1
-}, {
-    name: "Steve",
-    id: 1
-}, {
-    name: "Julian",
-    id: 1
-}, {
-    name: "Tomas",
-    id: 1
-}, {
-    name: "Bill",
-    id: 1
-}];
-var runners = function() {
-
-    return async.forever(
-        function(next) {
-            // next is suitable for passing to things that need a callback(err [, whatever]);
-            // it will result in this function being called again.
-
-            async.mapLimit(list, 1, function(item, callback) {
-                setTimeout(function(){
-                    item.id += 1;
-                    callback(null, item);
-                }, 2000)
-            }, function(error, callback) {
-                next();
-            });
-        },
-        function(error) {
-            // if next is called with a value in its first parameter, it will appear
-            // in here as 'error', and execution will stop.
-        }
-    );
-};
-
 ////////////////////////////////////////////////////////////////////////////////
 // Mongo URL generator                                                        //
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,8 +92,6 @@ var init = function() {
       var port = server.address().port;
 
       console.log('Runner app listening at http://%s:%s', host, port);
-      runners();
-
     });
     return server;
 };
@@ -198,23 +153,15 @@ app.use(allowCrossDomain);
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
+///////////////////////////////////////////////////////////////////////////////
+// Use routers                                                               //
+///////////////////////////////////////////////////////////////////////////////
 app.use('/', index);
 app.use('/queue', queue);
 
-
-/*
-app.get('/queue', function(request, response, next){
-    response.statusCode = 200;
-    response.json(list);
-});
-app.post('/queue', function(request, response, next){
-    list.push({
-        name: request.body.name,
-        id: parseInt(request.body.id, 10)
-    });
-});
-*/
-
+///////////////////////////////////////////////////////////////////////////////
+// Setup environments                                                        //
+///////////////////////////////////////////////////////////////////////////////
 switch(process.env.NODE_ENV) {
     case 'development':
         app.use(errorhandler({ dumpExceptions: true, showStack: true }));
@@ -228,10 +175,13 @@ switch(process.env.NODE_ENV) {
     break;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// Init the APP
+///////////////////////////////////////////////////////////////////////////////
 exports.app = init();
 
 ///////////////////////////////////////////////////////////////////////////////
-// Gracefully Shuts down the workers.
+// Gracefully Shuts down the workers.                                        //
 ///////////////////////////////////////////////////////////////////////////////
 process
     .on('SIGTERM', function () {

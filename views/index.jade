@@ -93,8 +93,14 @@ html(ng-app="Runner", lang="en")
                 });
 
             }]);
-            Runner.config(['$stateProvider', '$urlRouterProvider', function($stateProvider,   $urlRouterProvider) {
-
+            Runner.config(['$stateProvider', '$urlRouterProvider', 'RestangularProvider', function($stateProvider, $urlRouterProvider, RestangularProvider) {
+                //RestangularProvider.setBaseUrl('http://' + document.location.host);
+                RestangularProvider.setRestangularFields({
+                    id: '_id'
+                });
+                RestangularProvider.setDefaultHeaders({
+                    'Content-Type': 'application/json'
+                });
                 $urlRouterProvider.otherwise('/');
                 $stateProvider
                     .state('home', {
@@ -102,7 +108,7 @@ html(ng-app="Runner", lang="en")
                         views: {
                             'main': {
                                 templateUrl: 'home.html',
-                                controller: 'myAppController as home'
+                                controller: 'HomeCtrl as home'
                             }
                         }
                     })
@@ -111,18 +117,44 @@ html(ng-app="Runner", lang="en")
                         views: {
                             'main': {
                                 templateUrl: 'runner.html',
-                                controller: 'Runner as runner'
+                                controller: 'RunnerCtrl as runner',
+                                resolve: {
+                                    queue: ['$stateParams', 'Restangular', function ($stateParams, Restangular) {
+                                        return Restangular.all('queue').getList();
+                                    }]
+                                }
                             }
                         }
                     });
 
             }]);
-            Runner.controller('Runner', ['$scope', function($scope){
+            Runner.controller('RunnerCtrl', ['$scope', 'Restangular', 'queue', function($scope, Restangular, queue){
+                this.queue = queue;
                 this.runners = [{
                     name: 'oxoxoxo'
                 }];
+                this.create = function(task) {
+                    var url = this.queue.getRestangularUrl();
+                    console.log(task);
+                    this.queue.post(task);
+                    //Restangular.all('queue').customPOST(task);
+                }
+                this.update = function(task) {
+                    console.log(queue);
+                    task.put();
+                };
+                this.refresh = function() {
+                    this.queue = this.queue.getList().$object;
+                };
+                this.task = {
+                    uri: 'http://yahoo.com',
+                    method: 'GET',
+                    port: 80
+                }
             }]);
-            Runner.controller('myAppController', ['$scope', function($scope) {
+            Runner.controller('HomeCtrl', ['$scope', function($scope){
+            }]);
+            Runner.controller('MainCtrl', ['$scope', function($scope) {
 
                 console.log("started")
                 this.apis = [{
@@ -132,16 +164,9 @@ html(ng-app="Runner", lang="en")
                 }, {
                     name: 'Steve'
                 }];
-                $scope.animals = {
-                    vertibrates: {
-                    mammals: ['lion', 'dog'],
-                    birds: ['hawk', 'sparrow']},
-                    invertibrates: {'insects': ['bee', 'ant']}
-                };
-                this.name = "Home";
             }]);
 
-    body(ng-controller="myAppController as main")
+    body(ng-controller="MainCtrl as main")
         nav(role="navigation").navbar.navbar-inverse.navbar-fixed-top
             div.container-fluid
                 div.navbar-header
@@ -201,74 +226,16 @@ html(ng-app="Runner", lang="en")
                                 li
                                     a(href='#') Separated link
         div(ui-view="main").container-fluid
-            div.row
-                div.col-lg-12
-                    div.page-header
-                        h4
-                            i.fa.fa-fw.fa-cubes
-                            |&nbsp;Api List
-                    div(role="toolbar").btn-toolbar
-                        div.btn-group
-                            button(type="button").btn.btn-default
-                                i.fa.fa-file-o
-                            button(type="button").btn.btn-default
-                                i.fa.fa-pencil-square-o
-                            button(type="button").btn.btn-default
-                                i.fa.fa-trash
-                        form(role="form").form-inline.pull-right
-                            div.form-group
-                                div.input-group
-                                    input(type="text").form-control
-                                    span.input-group-btn
-                                        button(type="button").btn.btn-default
-                                            i.fa.fa-fw.fa-search
-                    br
-                    table.table.table-striped.table-hover.table-responsive
-                        thead
-                            tr
-                                th
-                                th Name
-                                th Subdomain
-                                th Created
-                                th.text-right Methods
-                                th Owners
-                                th.text-center Enabled
-                                th.text-center Proxied
-                                th.text-center Status
-                                th
-                        tbody
-                            tr(ng-repeat="api in main.apis")
-                                td
-                                    input(type="checkbox")
-                                td {{api.name}}
-                                td test
-                                td 16/16/2014
-                                td.text-right 32
-                                td Benjamin
-                                td.text-center
-                                    i.fa.fa-check-circle
-                                td.text-center
-                                    i.fa.fa-circle-thin
-                                td.text-center
-                                    i.fa.fa-circle.text-success
-                                td
-                                    div(dropdown="").btn-group.pull-right
-                                        button(type="button").btn.btn-default.btn-xs.dropdown-toggle
-                                            i.fa.fa-fw.fa-bars
-                                            span.fa.fa-fw.fa-angle-down
-                                        ul.dropdown-menu(role='menu')
-                                            li
-                                                a(href='#') Action
-                                            li
-                                                a(href='#') Another action
-                                            li
-                                                a(href='#') Something else here
-                                            li.divider
-                                            li
-                                                a(href='#') Separated link
 
+    // Home
     script(type="text/ng-template" id="home.html")
-        h1 {{home.name}}
+        div.row
+            div.col-lg-12
+                div.page-header
+                    h4
+                        i.fa.fa-fw.fa-cubes
+                        |&nbsp;{{home.name}}
+    // Runner
     script(type="text/ng-template" id="runner.html")
         div(ui-view="main").container-fluid
             div.row
@@ -279,12 +246,15 @@ html(ng-app="Runner", lang="en")
                             |&nbsp;Api List
                     div(role="toolbar").btn-toolbar
                         div.btn-group
-                            button(type="button").btn.btn-default
+                            button(type="button", ng-click="addNewTaskPannel = !addNewTaskPannel").btn.btn-default
                                 i.fa.fa-file-o
                             button(type="button").btn.btn-default
                                 i.fa.fa-pencil-square-o
                             button(type="button").btn.btn-default
                                 i.fa.fa-trash
+                        div.btn-group
+                            button(type="button", ng-click="runner.refresh()").btn.btn-default
+                                i.fa.fa-refresh
                         form(role="form").form-inline.pull-right
                             div.form-group
                                 div.input-group
@@ -293,33 +263,53 @@ html(ng-app="Runner", lang="en")
                                         button(type="button").btn.btn-default
                                             i.fa.fa-fw.fa-search
                     br
+                    div(collapse="!addNewTaskPannel").row
+                        div.col-lg-12.well
+                            form(role="form", ng-model="runner.task", ng-submit="runner.create(runner.task)").form-horizontal
+                                div.form-group
+                                    label(for="uri").col-lg-2.control-label Uri
+                                    div.col-lg-10
+                                        input(type="url", ng-model="runner.task.uri", placeholder="URL", id="uri").form-control
+                                div.form-group
+                                    label(for="method").col-lg-2.control-label Method
+                                    div.col-lg-10
+                                        select(ng-model="runner.task.method", id="method").form-control
+                                            option GET
+                                            option POST
+                                            option PUT
+                                            option DELETE
+                                div.form-group
+                                    label(for="port").col-lg-2.control-label Port
+                                    div.col-lg-10
+                                        input(type="number", ng-model="runner.task.port", placeholder="PORT", id="port").form-control
+                                button(type="submit").btn.btn-default Create
+                    br
                     table.table.table-striped.table-hover.table-responsive
                         thead
                             tr
                                 th
                                 th Name
-                                th Subdomain
                                 th Created
-                                th.text-right Methods
-                                th Owners
+                                th Last Run
+                                th.text-right Runs
                                 th.text-center Enabled
                                 th.text-center Proxied
-                                th.text-center Status
+                                th.text-right Status
                                 th
                         tbody
-                            tr(ng-repeat="api in main.apis")
+                            tr(ng-repeat="task in runner.queue")
                                 td
                                     input(type="checkbox")
-                                td {{api.name}}
-                                td test
-                                td 16/16/2014
-                                td.text-right 32
-                                td Benjamin
+                                td {{task.hostname}}
+                                td {{task.created | date:'MM/dd/yy hh:mm a'}}
+                                td {{task.lastRun | date:'MM/dd/yy hh:mm a'}}
+                                td.text-right {{task.runs}}
                                 td.text-center
                                     i.fa.fa-check-circle
                                 td.text-center
                                     i.fa.fa-circle-thin
-                                td.text-center
+                                td.text-right
+                                    {{task.status}}&nbsp;
                                     i.fa.fa-circle.text-success
                                 td
                                     div(dropdown="").btn-group.pull-right
